@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Al-Haqq E-Newspaper</title>
+    <meta name="description" content="Manage your profile on Al-Haqq E-Newspaper.">
+    <meta name="keywords" content="profile, Al-Haqq, news, newspaper, account">
+    <meta name="author" content="Al-Haqq E-Newspaper">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5dc; /* Light coffee background */
+            color: #4b371c; /* Coffee color for text */
+        }
+        header {
+            background-color: #6f4e37; /* Coffee color */
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        nav {
+            margin: 20px;
+            text-align: center;
+        }
+        nav a {
+            margin: 0 10px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #6f4e37; /* Coffee color */
+        }
+        .profile-section {
+            background-color: #fff8e7; /* Light cream background */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .profile-section label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .profile-section input, .profile-section textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #6f4e37;
+            border-radius: 5px;
+        }
+        .profile-section button {
+            padding: 10px 20px;
+            background-color: #6f4e37;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .profile-section button:hover {
+            background-color: #8b6d5b;
+        }
+        footer {
+            background-color: #6f4e37; /* Coffee color */
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: #1f1f1f;
+            color: #ffffff;
+        }
+        body.dark-mode header {
+            background-color: #4b371c;
+        }
+        body.dark-mode nav a {
+            color: #ffffff;
+        }
+        body.dark-mode .profile-section {
+            background-color: #2d2d2d;
+            color: #ffffff;
+        }
+        body.dark-mode h1, body.dark-mode h2 {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1>Profile</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact Us</a>
+            <a href="videos.html">Videos</a>
+            <a href="login.html">Login</a>
+            <a href="signup.html">Signup</a>
+            <a href="profile.html">Profile</a>
+            <button id="darkModeToggle" aria-label="Toggle dark mode">🌙</button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="profile-section">
+            <h2>Edit Your Profile</h2>
+            <form id="profileForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+                <label for="bio">Bio:</label>
+                <textarea id="bio" name="bio" rows="4" placeholder="Tell us about yourself"></textarea>
+
+                <label for="profilePicture">Profile Picture:</label>
+                <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
+
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2023 Al-Haqq E-Newspaper. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
+        });
+
+        // Check for dark mode preference
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            body.classList.add('dark-mode');
+        }
+
+        // Profile Form Submission
+        document.getElementById('profileForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            alert('Profile updated successfully!');
+            // You can add logic here to save the profile data (e.g., send to a server).
+        });
+    </script>
+</body>
+</html>

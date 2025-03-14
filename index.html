@@ -1,0 +1,508 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Haqq E-Newspaper</title>
+    <meta name="description" content="Al-Haqq E-Newspaper - Stay updated with the latest news on politics, sports, technology, and more.">
+    <meta name="keywords" content="news, Al-Haqq, newspaper, sports, politics, technology">
+    <meta name="author" content="Al-Haqq E-Newspaper">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5dc; /* Light coffee background */
+            color: #4b371c; /* Coffee color for text */
+            transition: background-color 0.3s, color 0.3s;
+        }
+        header {
+            background-color: #6f4e37; /* Coffee color */
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        nav {
+            margin: 20px;
+            text-align: center;
+        }
+        nav a {
+            margin: 0 10px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .section {
+            margin: 20px;
+            padding: 20px;
+            background-color: #fff8e7;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .section h2 {
+            color: #6f4e37;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+        .news-item {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #6f4e37;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .news-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .news-item img, .news-item video {
+            max-width: 50%; /* Adjust the size as needed */
+            height: auto;
+            border-radius: 5px;
+        }
+        .news-item h3 {
+            margin-top: 0;
+        }
+        .like-dislike-buttons button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            background-color: #6f4e37;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .like-dislike-buttons button:hover {
+            background-color: #8b6d5b;
+        }
+        .comment-section {
+            margin-top: 20px;
+        }
+        .comment {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #6f4e37;
+            border-radius: 5px;
+            background-color: #fff8e7;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .comment img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            vertical-align: middle;
+        }
+        .comment span {
+            margin-left: 10px;
+        }
+        .comment button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .comment button:hover {
+            background-color: #cc0000;
+        }
+        .dark-mode {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        .dark-mode header {
+            background-color: #333;
+        }
+        .dark-mode .section {
+            background-color: #3a3a3a;
+            color: #fff;
+        }
+        .dark-mode .news-item, .dark-mode .comment {
+            background-color: #2c2c2c;
+            border-color: #444;
+        }
+        .dark-mode .like-dislike-buttons button {
+            background-color: #555;
+        }
+        .dark-mode .like-dislike-buttons button:hover {
+            background-color: #777;
+        }
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            gap: 10px;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #6f4e37;
+            border-radius: 5px;
+        }
+        .search-bar button {
+            padding: 10px 20px;
+            background-color: #6f4e37;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .search-bar button:hover {
+            background-color: #8b6d5b;
+        }
+        .newsletter {
+            margin-top: 20px;
+        }
+        .social-media-links {
+            margin-top: 20px;
+        }
+        .social-media-links a {
+            margin: 0 10px;
+            color: #6f4e37;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+        .social-media-links a:hover {
+            color: #8b6d5b;
+        }
+        .suggestions {
+            margin-top: 20px;
+        }
+        .coffee-button {
+            padding: 10px 20px;
+            background-color: #6f4e37;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .coffee-button:hover {
+            background-color: #8b6d5b;
+        }
+        footer {
+            background-color: #6f4e37;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        .dark-mode footer {
+            background-color: #333;
+            color: #fff;
+        }
+        /* Loading spinner */
+        #loadingSpinner {
+            text-align: center;
+            font-size: 1.5rem;
+            margin: 20px 0;
+        }
+        /* Back to top button */
+        #backToTop {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: #6f4e37;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <img src="images/logo.png" alt="Al-Haqq E-Newspaper Logo" style="height: 50px;">
+        <h1>Al-Haqq E-Newspaper</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact Us</a>
+            <a href="videos.html">Videos</a>
+            <a href="login.html">Login</a>
+            <a href="signup.html">Signup</a>
+            <a href="profile.html">Profile</a>
+            <a href="add-news.html">Add News</a>
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+                <i class="fas fa-moon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search articles...">
+            <button class="coffee-button" onclick="searchArticles()">Search</button>
+        </div>
+
+        <!-- News Sections -->
+        <div id="newsSections">
+            <!-- News articles will be dynamically loaded here -->
+        </div>
+
+        <!-- Newsletter -->
+        <div class="newsletter">
+            <h2>Subscribe to Our Newsletter</h2>
+            <input type="email" id="newsletterEmail" placeholder="Enter your email">
+            <button class="coffee-button" onclick="subscribeNewsletter()">Subscribe</button>
+        </div>
+
+        <!-- Social Media Links -->
+        <div class="social-media-links">
+            <h2>Follow Us</h2>
+            <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
+            <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
+        </div>
+
+        <!-- Suggestions -->
+        <div class="suggestions">
+            <h2>Suggestions</h2>
+            <textarea id="suggestionInput" placeholder="Your suggestions..."></textarea>
+            <button class="coffee-button" onclick="submitSuggestion()">Submit</button>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" title="Go to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Al-Haqq E-Newspaper. All rights reserved.</p>
+        <p>
+            <a href="about.html">About Us</a> | 
+            <a href="contact.html">Contact Us</a> | 
+            <a href="privacy.html">Privacy Policy</a>
+        </p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Sample Data
+        const sampleArticles = [
+            {
+                id: 1,
+                title: "Breaking News: New Tech Innovation",
+                description: "A new tech innovation is changing the world.",
+                content: "More details about the innovation...",
+                category: "Technology",
+                image: "https://via.placeholder.com/600x400",
+                likes: 0,
+                dislikes: 0,
+                comments: []
+            },
+            {
+                id: 2,
+                title: "Sports: Local Team Wins Championship",
+                description: "The local team has won the national championship.",
+                content: "More details about the match...",
+                category: "Sports",
+                image: "https://via.placeholder.com/600x400",
+                likes: 0,
+                dislikes: 0,
+                comments: []
+            }
+        ];
+
+        // Load News Articles
+        function loadNews() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || sampleArticles;
+            const newsSections = document.getElementById('newsSections');
+            newsSections.innerHTML = ''; // Clear the news sections
+
+            const categories = ['Trending', 'Latest', 'Politics', 'Health', 'Fashion & Lifestyle', 'Sports', 'Technology', 'Culture', 'Others'];
+            categories.forEach(category => {
+                const categorySection = document.createElement('div');
+                categorySection.className = 'section';
+                categorySection.innerHTML = `<h2>${category}</h2>`;
+                newsSections.appendChild(categorySection);
+
+                const filteredArticles = newsArticles.filter(article => article.category === category);
+                filteredArticles.forEach(article => {
+                    const newsItem = document.createElement('div');
+                    newsItem.className = 'news-item';
+                    newsItem.innerHTML = `
+                        <h3>${article.title}</h3>
+                        <p>${article.description}</p>
+                        ${article.image ? `<img src="${article.image}" alt="${article.title}" style="max-width: 50%; border-radius: 8px;">` : ''}
+                        ${article.video ? `<video controls style="max-width: 50%; border-radius: 8px;">
+                            <source src="${article.video}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>` : ''}
+                        <p>${article.content}</p>
+                        ${article.link ? `<a href="${article.link}" target="_blank">Read More</a>` : ''}
+                        <div class="like-dislike-buttons">
+                            <button onclick="likeArticle(${article.id})">Like (${article.likes || 0})</button>
+                            <button onclick="dislikeArticle(${article.id})">Dislike (${article.dislikes || 0})</button>
+                        </div>
+                        <div class="comment-section">
+                            <h4>Comments</h4>
+                            ${article.comments ? article.comments.map(comment => `
+                                <div class="comment">
+                                    <img src="${comment.userProfilePicture}" alt="${comment.userName}">
+                                    <span>${comment.userName}</span>
+                                    <p>${comment.text}</p>
+                                    <button onclick="editComment(${article.id}, ${comment.id})">Edit</button>
+                                    <button onclick="deleteComment(${article.id}, ${comment.id})">Delete</button>
+                                </div>
+                            `).join('') : ''}
+                            <textarea id="commentInput-${article.id}" placeholder="Add a comment"></textarea>
+                            <button onclick="addComment(${article.id})">Add Comment</button>
+                        </div>
+                    `;
+                    categorySection.appendChild(newsItem);
+                });
+            });
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        // Search Functionality
+        function searchArticles() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || sampleArticles;
+            const filteredArticles = newsArticles.filter(article =>
+                article.title.toLowerCase().includes(searchQuery) ||
+                article.description.toLowerCase().includes(searchQuery) ||
+                article.content.toLowerCase().includes(searchQuery)
+            );
+
+            const newsSections = document.getElementById('newsSections');
+            newsSections.innerHTML = ''; // Clear the news sections
+
+            if (filteredArticles.length === 0) {
+                newsSections.innerHTML = `<div class="section"><h2>No results found</h2></div>`;
+            } else {
+                const searchResultsSection = document.createElement('div');
+                searchResultsSection.className = 'section';
+                searchResultsSection.innerHTML = `<h2>Search Results</h2>`;
+                newsSections.appendChild(searchResultsSection);
+
+                filteredArticles.forEach(article => {
+                    const newsItem = document.createElement('div');
+                    newsItem.className = 'news-item';
+                    newsItem.innerHTML = `
+                        <h3>${article.title}</h3>
+                        <p>${article.description}</p>
+                        ${article.image ? `<img src="${article.image}" alt="${article.title}" style="max-width: 50%; border-radius: 8px;">` : ''}
+                        ${article.video ? `<video controls style="max-width: 50%; border-radius: 8px;">
+                            <source src="${article.video}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>` : ''}
+                        <p>${article.content}</p>
+                        ${article.link ? `<a href="${article.link}" target="_blank">Read More</a>` : ''}
+                        <div class="like-dislike-buttons">
+                            <button onclick="likeArticle(${article.id})">Like (${article.likes || 0})</button>
+                            <button onclick="dislikeArticle(${article.id})">Dislike (${article.dislikes || 0})</button>
+                        </div>
+                        <div class="comment-section">
+                            <h4>Comments</h4>
+                            ${article.comments ? article.comments.map(comment => `
+                                <div class="comment">
+                                    <img src="${comment.userProfilePicture}" alt="${comment.userName}">
+                                    <span>${comment.userName}</span>
+                                    <p>${comment.text}</p>
+                                    <button onclick="editComment(${article.id}, ${comment.id})">Edit</button>
+                                    <button onclick="deleteComment(${article.id}, ${comment.id})">Delete</button>
+                                </div>
+                            `).join('') : ''}
+                            <textarea id="commentInput-${article.id}" placeholder="Add a comment"></textarea>
+                            <button onclick="addComment(${article.id})">Add Comment</button>
+                        </div>
+                    `;
+                    searchResultsSection.appendChild(newsItem);
+                });
+            }
+        }
+
+        // Like Article Function
+        function likeArticle(articleId) {
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || sampleArticles;
+            const article = newsArticles.find(article => article.id === articleId);
+            if (article) {
+                article.likes = (article.likes || 0) + 1; // Increment likes
+                localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+                loadNews(); // Reload news to update the UI
+            }
+        }
+
+        // Dislike Article Function
+        function dislikeArticle(articleId) {
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || sampleArticles;
+            const article = newsArticles.find(article => article.id === articleId);
+            if (article) {
+                article.dislikes = (article.dislikes || 0) + 1; // Increment dislikes
+                localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+                loadNews(); // Reload news to update the UI
+            }
+        }
+
+        // Back to Top Button
+        window.onscroll = function() {
+            const backToTopButton = document.getElementById('backToTop');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                backToTopButton.style.display = 'block';
+            } else {
+                backToTopButton.style.display = 'none';
+            }
+        };
+
+        document.getElementById('backToTop').onclick = function() {
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE, and Opera
+        };
+
+        // Initial Load
+        loadNews();
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+    </script>
+</body>
+</html>
