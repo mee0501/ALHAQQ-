@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +11,43 @@
     <meta name="author" content="Al-Haqq E-Newspaper">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
+    <style>/* Scroll Buttons */
+.scroll-buttons {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.scroll-buttons button {
+    width: 40px;
+    height: 40px;
+    background-color: #6f4e37; /* Coffee color */
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, background-color 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.scroll-buttons button:hover {
+    background-color: #8b6d5b; /* Darker coffee color */
+}
+
+.scroll-buttons button.show {
+    opacity: 1;
+    visibility: visible;
+}
         /* General Styles */
         body {
             font-family: 'Roboto', sans-serif;
@@ -104,6 +141,11 @@
         }
         .news-item h3 {
             margin-top: 0;
+        }
+        .news-item .date-time {
+            font-size: 0.9rem;
+            color: #6f4e37;
+            margin-bottom: 10px;
         }
         .like-dislike-buttons button {
             margin-right: 10px;
@@ -362,7 +404,7 @@
             </div>
             <button class="add-news-button" onclick="openAddNewsForm()">Add News</button>
         </div>
-        <p>&copy; 2023 Al-Haqq E-Newspaper. All Rights Reserved.</p>
+        <p>&copy; 2025 Al-Haqq E-Newspaper. All Rights Reserved.</p>
     </footer>
 
     <!-- Scroll Buttons -->
@@ -373,8 +415,16 @@
 
     <!-- Add News Form (Hidden by Default) -->
     <div class="add-news-form" id="addNewsForm">
-        <h2>Add a New Article</h2>
+        <h2>Add/Edit News</h2>
         <form id="newsForm">
+            <!-- Dropdown to select existing news posts -->
+            <label for="newsList">Select News to Edit/Delete:</label>
+            <select id="newsList" onchange="loadNewsForEdit()">
+                <option value="">-- Add New Article --</option>
+                <!-- Existing news posts will be dynamically added here -->
+            </select>
+
+            <!-- News Form Fields -->
             <input type="password" id="adminPassword" placeholder="Admin Password" required>
             <input type="text" id="newsTitle" placeholder="News Title" required>
             <textarea id="newsDescription" placeholder="News Description" rows="4" required></textarea>
@@ -405,137 +455,499 @@
                 <option value="Culture">Culture</option>
                 <option value="Others">Others</option>
             </select>
-            <button type="submit" class="coffee-button">Add News</button>
+
+            <!-- Buttons for Add, Edit, and Delete -->
+            <button type="submit" id="addEditButton">Add News</button>
+            <button type="button" onclick="deleteNews()" id="deleteButton" style="display: none;">Delete News</button>
+            <button type="button" onclick="closeAddNewsForm()">Close</button>
         </form>
     </div>
 
     <!-- Scripts -->
     <script>
+        // Admin Password
+        const ADMIN_PASSWORD = "admin123";
+
         // Toggle Add News Form
         function openAddNewsForm() {
             const password = prompt("Enter admin password to add news:");
-            if (password !== "admin123") {
-                alert("Incorrect password. Only admins can add news.");
-                return;
-            }
-            const form = document.getElementById('addNewsForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Password Protection for Add News
-        const ADMIN_PASSWORD = "admin123"; // Set your admin password here
-        document.getElementById('newsForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const password = document.getElementById('adminPassword').value;
             if (password !== ADMIN_PASSWORD) {
                 alert("Incorrect password. Only admins can add news.");
                 return;
             }
-            // Proceed with adding news if password is correct
-            addNewsArticle();
-        });
+            const form = document.getElementById('addNewsForm');
+            form.style.display = 'block';
+            loadNewsList(); // Load existing news posts into the dropdown
+        }
 
-        // Add News Functionality
-        function addNewsArticle() {
-            // Get form values
+        // Close Add News Form
+        function closeAddNewsForm() {
+            document.getElementById('addNewsForm').style.display = 'none';
+            resetForm();
+        }
+
+        // Reset Form
+        function resetForm() {
+            document.getElementById('newsForm').reset();
+            document.getElementById('addEditButton').textContent = "Add News";
+            document.getElementById('deleteButton').style.display = "none";
+        }
+
+        // Load News List into Dropdown
+        function loadNewsList() {
+            const newsList = document.getElementById('newsList');
+            newsList.innerHTML = '<option value="">-- Add New Article --</option>';
+
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+            newsArticles.forEach(article => {
+                const option = document.createElement('option');
+                option.value = article.id;
+                option.textContent = article.title;
+                newsList.appendChild(option);
+            });
+        }
+
+        // Load News for Editing
+        function loadNewsForEdit() {
+            const newsList = document.getElementById('newsList');
+            const selectedId = newsList.value;
+
+            if (!selectedId) {
+                resetForm();
+                return;
+            }
+
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+            const article = newsArticles.find(article => article.id == selectedId);
+
+            if (article) {
+                document.getElementById('newsTitle').value = article.title;
+                document.getElementById('newsDescription').value = article.description;
+                document.getElementById('newsContent').value = article.content;
+                document.getElementById('newsCategory').value = article.category;
+
+                document.getElementById('addEditButton').textContent = "Update News";
+                document.getElementById('deleteButton').style.display = "inline-block";
+            }
+        }
+
+        // Add/Edit News
+        document.getElementById('newsForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const password = document.getElementById('adminPassword').value;
+            if (password !== ADMIN_PASSWORD) {
+                alert("Incorrect password. Only admins can add/edit news.");
+                return;
+            }
+
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+            const newsList = document.getElementById('newsList');
+            const selectedId = newsList.value;
+
+            // Get form data
             const title = document.getElementById('newsTitle').value;
             const description = document.getElementById('newsDescription').value;
             const content = document.getElementById('newsContent').value;
-            const image1 = document.getElementById('newsImage1').files[0];
-            const image2 = document.getElementById('newsImage2').files[0];
-            const image3 = document.getElementById('newsImage3').files[0];
-            const link1 = document.getElementById('newsLink1').value;
-            const link2 = document.getElementById('newsLink2').value;
-            const link3 = document.getElementById('newsLink3').value;
-            const video1 = document.getElementById('newsVideo1').files[0];
-            const video2 = document.getElementById('newsVideo2').files[0];
-            const video3 = document.getElementById('newsVideo3').files[0];
             const category = document.getElementById('newsCategory').value;
 
-            // Create a new article object
-            const newArticle = {
-                id: Date.now(), // Unique ID for the article
-                title,
-                description,
-                content,
-                images: [image1, image2, image3].filter(img => img),
-                links: [link1, link2, link3].filter(link => link),
-                videos: [video1, video2, video3].filter(video => video),
-                category,
-                likes: 0,
-                dislikes: 0,
-                comments: []
-            };
+            // Handle image uploads
+            const imageInputs = [
+                document.getElementById('newsImage1'),
+                document.getElementById('newsImage2'),
+                document.getElementById('newsImage3'),
+            ];
+            const images = [];
+            for (const input of imageInputs) {
+                if (input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        images.push(e.target.result);
+                        if (images.length === imageInputs.filter(input => input.files[0]).length) {
+                            saveArticle();
+                        }
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
 
-            // Save the article to localStorage
+            // Handle video uploads
+            const videoInputs = [
+                document.getElementById('newsVideo1'),
+                document.getElementById('newsVideo2'),
+                document.getElementById('newsVideo3'),
+            ];
+            const videos = [];
+            for (const input of videoInputs) {
+                if (input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        videos.push(e.target.result);
+                        if (videos.length === videoInputs.filter(input => input.files[0]).length) {
+                            saveArticle();
+                        }
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            // Handle links
+            const links = [
+                document.getElementById('newsLink1').value,
+                document.getElementById('newsLink2').value,
+                document.getElementById('newsLink3').value,
+            ].filter(link => link.trim() !== ""); // Remove empty links
+
+            function saveArticle() {
+                if (selectedId) {
+                    // Edit existing news
+                    const article = newsArticles.find(article => article.id == selectedId);
+                    article.title = title;
+                    article.description = description;
+                    article.content = content;
+                    article.category = category;
+                    article.images = images;
+                    article.videos = videos;
+                    article.links = links;
+
+                    alert("News updated successfully!");
+                } else {
+                    // Add new news
+                    const newArticle = {
+                        id: Date.now(),
+                        title,
+                        description,
+                        content,
+                        category,
+                        date: new Date().toLocaleString(),
+                        likes: 0,
+                        dislikes: 0,
+                        comments: [],
+                        images,
+                        videos,
+                        links,
+                    };
+                    newsArticles.push(newArticle);
+
+                    alert("News added successfully!");
+                }
+
+                localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+                loadNewsList();
+                resetForm();
+                loadNews(); // Refresh the news display on the homepage
+            }
+        });
+
+        // Delete News
+        function deleteNews() {
+            const password = prompt("Enter admin password to delete news:");
+            if (password !== ADMIN_PASSWORD) {
+                alert("Incorrect password. Only admins can delete news.");
+                return;
+            }
+
+            const newsList = document.getElementById('newsList');
+            const selectedId = newsList.value;
+
+            if (!selectedId) {
+                alert("No news selected.");
+                return;
+            }
+
             const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
-            newsArticles.push(newArticle);
-            localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+            const updatedArticles = newsArticles.filter(article => article.id != selectedId);
 
-            // Notify the user and reload the list
-            alert('News article added successfully!');
-            loadNews();
+            localStorage.setItem('newsArticles', JSON.stringify(updatedArticles));
+            alert("News deleted successfully!");
+            loadNewsList();
+            resetForm();
+            loadNews(); // Refresh the news display on the homepage
         }
 
-        // Show News for a Specific Category
-        function showNews(category) {
-            const newsSection = document.getElementById('newsSection');
-            const newsCategoryTitle = document.getElementById('newsCategoryTitle');
-            const newsItems = document.getElementById('newsItems');
+        function loadNews() {
+    const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+    const newsItems = document.getElementById('newsItems');
+    newsItems.innerHTML = '';
 
-            // Hide categories grid and show news section
-            document.getElementById('categoriesGrid').style.display = 'none';
-            newsSection.style.display = 'block';
+    if (newsArticles.length === 0) {
+        newsItems.innerHTML = '<p>No news articles found.</p>';
+    } else {
+        newsArticles.forEach(article => {
+            const newsItem = document.createElement('div');
+            newsItem.className = 'news-item';
+            newsItem.innerHTML = `
+                <h3>${article.title}</h3>
+                <p class="date-time">${article.date}</p>
+                <p>${article.description}</p>
+                <p>${article.content}</p>
+                ${article.images ? article.images.map(image => `
+                    <img src="${image}" alt="${article.title}" style="max-width: 100%; border-radius: 10px; margin-bottom: 10px;">
+                `).join('') : ''}
+                ${article.videos ? article.videos.map(video => `
+                    <video controls style="max-width: 100%; border-radius: 10px; margin-bottom: 10px;">
+                        <source src="${video}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `).join('') : ''}
+                ${article.links ? article.links.map(link => `
+                    <p><a href="${link}" target="_blank">${link}</a></p>
+                `).join('') : ''}
+                <div class="like-dislike-buttons">
+                    <button onclick="likeArticle(${article.id})">👍 ${article.likes || 0}</button>
+                    <button onclick="dislikeArticle(${article.id})">👎 ${article.dislikes || 0}</button>
+                </div>
+                <div class="comment-section">
+                    <h4>Comments</h4>
+                    ${article.comments ? article.comments.map(comment => `
+                        <div class="comment">
+                            <img src="${comment.userProfilePicture}" alt="${comment.userName}">
+                            <span>${comment.userName}</span>
+                            <p>${comment.text}</p>
+                            ${comment.reply ? `<div class="reply">
+                                <strong>Admin:</strong> ${comment.reply}
+                            </div>` : ''}
+                            <button onclick="replyToComment(${article.id}, ${comment.id})">Reply</button>
+                            <button onclick="deleteComment(${article.id}, ${comment.id})">Delete</button>
+                        </div>
+                    `).join('') : ''}
+                    <textarea id="commentInput-${article.id}" placeholder="Add a comment"></textarea>
+                    <button onclick="addComment(${article.id})">Add Comment</button>
+                </div>
+            `;
+            newsItems.appendChild(newsItem);
+        });
+    }
+}
 
-            // Set the category title
-            newsCategoryTitle.textContent = category;
+            
+        
 
-            // Load news articles for the selected category
+function showNews(category) {
+    const newsSection = document.getElementById('newsSection');
+    const newsCategoryTitle = document.getElementById('newsCategoryTitle');
+    const newsItems = document.getElementById('newsItems');
+
+    // Set the category title
+    newsCategoryTitle.textContent = category;
+
+    // Load news articles from localStorage
+    const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+
+    // Filter news by category
+    const filteredNews = newsArticles.filter(article => article.category === category);
+
+    // Clear existing news items
+    newsItems.innerHTML = '';
+
+    // Display filtered news
+    if (filteredNews.length === 0) {
+        newsItems.innerHTML = '<p>No news found in this category.</p>';
+    } else {
+        filteredNews.forEach(article => {
+            const newsItem = document.createElement('div');
+            newsItem.className = 'news-item';
+            newsItem.innerHTML = `
+                <h3>${article.title}</h3>
+                <p class="date-time">${article.date}</p>
+                <p>${article.description}</p>
+                <p>${article.content}</p>
+                ${article.images ? article.images.map(image => `
+                    <img src="${image}" alt="${article.title}" style="max-width: 100%; border-radius: 10px; margin-bottom: 10px;">
+                `).join('') : ''}
+                ${article.videos ? article.videos.map(video => `
+                    <video controls style="max-width: 100%; border-radius: 10px; margin-bottom: 10px;">
+                        <source src="${video}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `).join('') : ''}
+                ${article.links ? article.links.map(link => `
+                    <p><a href="${link}" target="_blank">${link}</a></p>
+                `).join('') : ''}
+                <div class="like-dislike-buttons">
+                    <button onclick="likeArticle(${article.id})">👍 ${article.likes || 0}</button>
+                    <button onclick="dislikeArticle(${article.id})">👎 ${article.dislikes || 0}</button>
+                </div>
+                <div class="comment-section">
+                    <h4>Comments</h4>
+                    ${article.comments ? article.comments.map(comment => `
+                        <div class="comment">
+                            <img src="${comment.userProfilePicture}" alt="${comment.userName}">
+                            <span>${comment.userName}</span>
+                            <p>${comment.text}</p>
+                            ${comment.reply ? `<div class="reply">
+                                <strong>Admin:</strong> ${comment.reply}
+                            </div>` : ''}
+                            <button onclick="replyToComment(${article.id}, ${comment.id})">Reply</button>
+                            <button onclick="deleteComment(${article.id}, ${comment.id})">Delete</button>
+                        </div>
+                    `).join('') : ''}
+                    <textarea id="commentInput-${article.id}" placeholder="Add a comment"></textarea>
+                    <button onclick="addComment(${article.id})">Add Comment</button>
+                </div>
+            `;
+            newsItems.appendChild(newsItem);
+        });
+    }
+
+    // Show the news section
+    newsSection.style.display = 'block';
+}
+
+        // Like Article
+        function likeArticle(articleId) {
             const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
-            const filteredArticles = newsArticles.filter(article => article.category === category);
+            const article = newsArticles.find(article => article.id == articleId);
 
-            // Clear previous news items
+            if (article) {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (!user) {
+                    alert("Please log in to like articles.");
+                    return;
+                }
+
+                // Check if the user has already liked or disliked
+                if (article.likedBy && article.likedBy.includes(user.username)) {
+                    alert("You have already liked this article.");
+                    return;
+                }
+                if (article.dislikedBy && article.dislikedBy.includes(user.username)) {
+                    // Remove dislike if the user previously disliked
+                    article.dislikes = (article.dislikes || 0) - 1;
+                    article.dislikedBy = article.dislikedBy.filter(username => username !== user.username);
+                }
+
+                // Add like
+                article.likes = (article.likes || 0) + 1;
+                article.likedBy = article.likedBy || [];
+                article.likedBy.push(user.username);
+
+                // Update UI
+                document.getElementById(`likeCount-${articleId}`).textContent = article.likes;
+                document.getElementById(`likeButton-${articleId}`).disabled = true;
+                if (document.getElementById(`dislikeButton-${articleId}`).disabled) {
+                    document.getElementById(`dislikeButton-${articleId}`).disabled = false;
+                }
+
+                // Save changes
+                localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+            }
+        }
+
+        // Dislike Article
+        function dislikeArticle(articleId) {
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+            const article = newsArticles.find(article => article.id == articleId);
+
+            if (article) {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (!user) {
+                    alert("Please log in to dislike articles.");
+                    return;
+                }
+
+                // Check if the user has already liked or disliked
+                if (article.dislikedBy && article.dislikedBy.includes(user.username)) {
+                    alert("You have already disliked this article.");
+                    return;
+                }
+                if (article.likedBy && article.likedBy.includes(user.username)) {
+                    // Remove like if the user previously liked
+                    article.likes = (article.likes || 0) - 1;
+                    article.likedBy = article.likedBy.filter(username => username !== user.username);
+                }
+
+                // Add dislike
+                article.dislikes = (article.dislikes || 0) + 1;
+                article.dislikedBy = article.dislikedBy || [];
+                article.dislikedBy.push(user.username);
+
+                // Update UI
+                document.getElementById(`dislikeCount-${articleId}`).textContent = article.dislikes;
+                document.getElementById(`dislikeButton-${articleId}`).disabled = true;
+                if (document.getElementById(`likeButton-${articleId}`).disabled) {
+                    document.getElementById(`likeButton-${articleId}`).disabled = false;
+                }
+
+                // Save changes
+                localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+            }
+        }
+
+        // Add Comment
+        function addComment(articleId) {
+            const commentInput = document.getElementById(`commentInput-${articleId}`);
+            const commentText = commentInput.value.trim();
+            if (!commentText) {
+                alert("Please enter a comment.");
+                return;
+            }
+
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+            const article = newsArticles.find(article => article.id == articleId);
+
+            if (article) {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (!user) {
+                    alert("Please log in to add comments.");
+                    return;
+                }
+
+                const comment = {
+                    id: Date.now(),
+                    userName: user.username,
+                    userProfilePicture: user.profilePicture,
+                    text: commentText,
+                    reply: null,
+                };
+                article.comments = article.comments || [];
+                article.comments.push(comment);
+                localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+                loadNews(); // Refresh the news display
+                commentInput.value = "";
+            }
+        }
+
+        // Delete Comment
+        function deleteComment(articleId, commentId) {
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+            const article = newsArticles.find(article => article.id == articleId);
+
+            if (article && article.comments) {
+                article.comments = article.comments.filter(comment => comment.id != commentId);
+                localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+                loadNews(); // Refresh the news display
+            }
+        }
+
+        // Search Articles
+        function searchArticles() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+            const filteredNews = newsArticles.filter(article => 
+                article.title.toLowerCase().includes(searchQuery) || 
+                article.description.toLowerCase().includes(searchQuery) ||
+                article.content.toLowerCase().includes(searchQuery)
+            );
+
+            const newsItems = document.getElementById('newsItems');
             newsItems.innerHTML = '';
 
-            // Display news articles
-            filteredArticles.forEach(article => {
-                const newsItem = document.createElement('div');
-                newsItem.className = 'news-item';
-                newsItem.innerHTML = `
-                    <h3>${article.title}</h3>
-                    <p>${article.description}</p>
-                    ${article.images ? article.images.map(img => `<img src="${URL.createObjectURL(img)}" alt="${article.title}" style="max-width: 100%; border-radius: 8px;">`).join('') : ''}
-                    ${article.links ? article.links.map(link => `<a href="${link}" target="_blank">${link}</a><br>`).join('') : ''}
-                    ${article.videos ? article.videos.map(video => `<video width="100%" controls><source src="${URL.createObjectURL(video)}" type="video/mp4"></video>`).join('') : ''}
-                    <p>${article.content}</p>
-                    <div class="like-dislike-buttons">
-                        <button onclick="likeArticle(${article.id})">👍 ${article.likes || 0}</button>
-                        <button onclick="dislikeArticle(${article.id})">👎 ${article.dislikes || 0}</button>
-                    </div>
-                    <div class="comment-section">
-                        <h4>Comments</h4>
-                        ${article.comments ? article.comments.map(comment => `
-                            <div class="comment">
-                                <img src="${comment.userProfilePicture}" alt="${comment.userName}">
-                                <span>${comment.userName}</span>
-                                <p>${comment.text}</p>
-                                ${comment.reply ? `<div class="reply">
-                                    <strong>Admin:</strong> ${comment.reply}
-                                </div>` : ''}
-                                <button onclick="replyToComment(${article.id}, ${comment.id})">Reply</button>
-                                <button onclick="deleteComment(${article.id}, ${comment.id})">Delete</button>
-                            </div>
-                        `).join('') : ''}
-                        <textarea id="commentInput-${article.id}" placeholder="Add a comment"></textarea>
-                        <button onclick="addComment(${article.id})">Add Comment</button>
-                    </div>
-                    <div class="admin-actions">
-                        <button onclick="editNews(${article.id})">Edit</button>
-                        <button onclick="deleteNews(${article.id})">Delete</button>
-                    </div>
-                `;
-                newsItems.appendChild(newsItem);
-            });
+            if (filteredNews.length === 0) {
+                newsItems.innerHTML = '<p>No articles found matching your search.</p>';
+            } else {
+                filteredNews.forEach(article => {
+                    const newsItem = document.createElement('div');
+                    newsItem.className = 'news-item';
+                    newsItem.innerHTML = `
+                        <h3>${article.title}</h3>
+                        <p class="date-time">${article.date}</p>
+                        <p>${article.description}</p>
+                        <a href="news-details.html?id=${article.id}">Read More</a>
+                    `;
+                    newsItems.appendChild(newsItem);
+                });
+            }
         }
 
         // Dark Mode
@@ -550,42 +962,62 @@
                 themeSwitcher.classList.remove('fa-moon');
                 themeSwitcher.classList.add('fa-sun');
             }
+            localStorage.setItem('darkMode', body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
         }
 
-        // Scroll to Top
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Scroll to Bottom
-        function scrollToBottom() {
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }
-
-        // Suggestion Box
-        function submitSuggestion() {
-            const suggestion = document.getElementById('suggestionInput').value;
-            if (suggestion.trim() === "") {
-                alert("Please enter a suggestion.");
-                return;
-            }
-            alert("Thank you for your suggestion!");
-            document.getElementById('suggestionInput').value = ""; // Clear the input
-        }
-
-        // Newsletter Subscription
-        function subscribeNewsletter() {
-            const email = document.getElementById('newsletterEmail').value;
-            if (email.trim() === "" || !email.includes("@")) {
-                alert("Please enter a valid email address.");
-                return;
-            }
-            alert("Thank you for subscribing to our newsletter!");
-            document.getElementById('newsletterEmail').value = ""; // Clear the input
+        // Check for dark mode preference
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.theme-switcher i').classList.remove('fa-sun');
+            document.querySelector('.theme-switcher i').classList.add('fa-moon');
         }
 
         // Initial Load
         loadNews();
     </script>
+<!-- Scroll Buttons -->
+<div class="scroll-buttons">
+    <button id="scrollToTopBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+    <button id="scrollToBottomBtn" title="Go to bottom"><i class="fas fa-arrow-down"></i></button>
+</div>
+
+<script>
+// Scroll to Top Button
+const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+// Scroll to Bottom Button
+const scrollToBottomBtn = document.getElementById('scrollToBottomBtn');
+
+// Show/Hide Buttons on Scroll
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 200) {
+        scrollToTopBtn.classList.add('show');
+    } else {
+        scrollToTopBtn.classList.remove('show');
+    }
+
+    if (window.innerHeight + window.scrollY < document.body.offsetHeight - 200) {
+        scrollToBottomBtn.classList.add('show');
+    } else {
+        scrollToBottomBtn.classList.remove('show');
+    }
+});
+
+// Scroll to Top Function
+scrollToTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
+// Scroll to Bottom Function
+scrollToBottomBtn.addEventListener('click', () => {
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+    });
+});
+</script>
+
 </body>
 </html>
