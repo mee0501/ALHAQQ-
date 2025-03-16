@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,7 +116,9 @@
             <a href="login.html">Login</a>
             <a href="signup.html">Signup</a>
             <a href="profile.html">Profile</a>
-            <button id="darkModeToggle" aria-label="Toggle dark mode">🌙</button>
+            <button class="theme-switcher" onclick="toggleDarkMode()">
+                <i class="fas fa-sun"></i> <!-- Default to sun icon -->
+            </button>
         </nav>
     </header>
 
@@ -133,30 +137,52 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2023 Al-Haqq E-Newspaper. All rights reserved.</p>
+        <p>&copy; 2025 Al-Haqq E-Newspaper. All rights reserved.</p>
     </footer>
 
     <!-- Scripts -->
     <script>
         // Dark Mode Toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const body = document.body;
-
-        darkModeToggle.addEventListener('click', () => {
+        function toggleDarkMode() {
+            const body = document.body;
             body.classList.toggle('dark-mode');
+            const themeSwitcher = document.querySelector('.theme-switcher i');
+            if (body.classList.contains('dark-mode')) {
+                themeSwitcher.classList.remove('fa-sun');
+                themeSwitcher.classList.add('fa-moon');
+            } else {
+                themeSwitcher.classList.remove('fa-moon');
+                themeSwitcher.classList.add('fa-sun');
+            }
             localStorage.setItem('darkMode', body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
-        });
+        }
 
         // Check for dark mode preference
         if (localStorage.getItem('darkMode') === 'enabled') {
-            body.classList.add('dark-mode');
+            document.body.classList.add('dark-mode');
+            document.querySelector('.theme-switcher i').classList.remove('fa-sun');
+            document.querySelector('.theme-switcher i').classList.add('fa-moon');
         }
 
         // Login Form Submission
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            alert('Login successful!');
-            window.location.href = 'profile.html'; // Redirect to profile page
+
+            // Get username and password from the form
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Get user data from localStorage
+            const user = JSON.parse(localStorage.getItem(username));
+
+            // Check if the user exists and the password is correct
+            if (user && user.password === password) {
+                alert('Login successful!');
+                localStorage.setItem('currentUser', JSON.stringify(user)); // Save current user
+                window.location.href = 'profile.html'; // Redirect to profile page
+            } else {
+                alert('Invalid username or password.');
+            }
         });
     </script>
 </body>
