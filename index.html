@@ -1,5 +1,8 @@
 
 
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -529,6 +532,7 @@
                 document.getElementById('addEditButton').textContent = "Update News";
                 document.getElementById('deleteButton').style.display = "inline-block";
             }
+			
         }
 
         // Add/Edit News
@@ -626,7 +630,9 @@
                         images,
                         videos,
                         links,
-                    };
+                  likedBy: [], // initialize this array
+				   dislikedBy: [], // initialize this array
+				   };
                     newsArticles.push(newArticle);
 
                     alert("News added successfully!");
@@ -664,64 +670,75 @@
             resetForm();
             loadNews(); // Refresh the news display on the homepage
         }
-
-        function loadNews() {
+function loadNews() {
     const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
     const newsItems = document.getElementById('newsItems');
     newsItems.innerHTML = '';
 
-    if (newsArticles.length === 0) {
-        newsItems.innerHTML = '<p>No news articles found.</p>';
-    } else {
-        newsArticles.forEach(article => {
-            const newsItem = document.createElement('div');
-            newsItem.className = 'news-item';
-            newsItem.innerHTML = `
-                <h3>${article.title}</h3>
-                <p class="date-time">${article.date}</p>
-                <p>${article.description}</p>
-                <p>${article.content}</p>
-                ${article.images ? article.images.map(image => `
-                    <img src="${image}" alt="${article.title}" style="max-width: 100%; border-radius: 10px; margin-bottom: 10px;">
+    const user = JSON.parse(localStorage.getItem('currentUser')); // Get the current user
+
+    newsArticles.forEach(article => {
+        // Ensure likedBy and dislikedBy arrays exist
+        if (!article.likedBy) article.likedBy = [];
+        if (!article.dislikedBy) article.dislikedBy = [];
+
+        // Check if the user has already liked or disliked the article
+        const hasLiked = user && article.likedBy.includes(user.username);
+        const hasDisliked = user && article.dislikedBy.includes(user.username);
+
+        const newsItem = document.createElement('div');
+        newsItem.className = 'news-item';
+        newsItem.innerHTML = `
+            <!-- Article content -->
+            <h3>${article.title}</h3>
+            <p class="date-time">${article.date}</p>
+            <p>${article.description}</p>
+            <p>${article.content}</p>
+            ${article.images ? article.images.map(image => `
+                <img src="${image}" alt="${article.title}" style="max-width: 100%; border-radius: 10px; margin-bottom: 10px;">
+            `).join('') : ''}
+            ${article.videos ? article.videos.map(video => `
+                <video controls style="max-width: 100%; border-radius: 10px; margin-bottom: 10px;">
+                    <source src="${video}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            `).join('') : ''}
+            ${article.links ? article.links.map(link => `
+                <p><a href="${link}" target="_blank">${link}</a></p>
+            `).join('') : ''}
+
+            <!-- Like/Dislike Buttons -->
+            <div class="like-dislike-buttons">
+                <button class="like-button" onclick="likeArticle(${article.id}); event.stopPropagation();" id="likeButton-${article.id}" ${hasLiked ? 'disabled' : ''}>👍 ${article.likes || 0}</button>
+                <button class="dislike-button" onclick="dislikeArticle(${article.id}); event.stopPropagation();" id="dislikeButton-${article.id}" ${hasDisliked ? 'disabled' : ''}>👎 ${article.dislikes || 0}</button>
+            </div>
+
+            <!-- Comment Section -->
+            <div class="comment-section">
+                <h4>Comments</h4>
+                ${article.comments ? article.comments.map(comment => `
+                    <div class="comment">
+                        <img src="${comment.userProfilePicture}" alt="${comment.userName}">
+                        <span>${comment.userName}</span>
+                        <p>${comment.text}</p>
+                        ${comment.reply ? `<div class="reply">
+                            <strong>Admin:</strong> ${comment.reply}
+                        </div>` : ''}
+                        <button onclick="replyToComment(${article.id}, ${comment.id})">Reply</button>
+                        <button onclick="deleteComment(${article.id}, ${comment.id})">Delete</button>
+                    </div>
                 `).join('') : ''}
-                ${article.videos ? article.videos.map(video => `
-                    <video controls style="max-width: 100%; border-radius: 10px; margin-bottom: 10px;">
-                        <source src="${video}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                `).join('') : ''}
-                ${article.links ? article.links.map(link => `
-                    <p><a href="${link}" target="_blank">${link}</a></p>
-                `).join('') : ''}
-                <div class="like-dislike-buttons">
-                    <button onclick="likeArticle(${article.id})">👍 ${article.likes || 0}</button>
-                    <button onclick="dislikeArticle(${article.id})">👎 ${article.dislikes || 0}</button>
-                </div>
-                <div class="comment-section">
-                    <h4>Comments</h4>
-                    ${article.comments ? article.comments.map(comment => `
-                        <div class="comment">
-                            <img src="${comment.userProfilePicture}" alt="${comment.userName}">
-                            <span>${comment.userName}</span>
-                            <p>${comment.text}</p>
-                            ${comment.reply ? `<div class="reply">
-                                <strong>Admin:</strong> ${comment.reply}
-                            </div>` : ''}
-                            <button onclick="replyToComment(${article.id}, ${comment.id})">Reply</button>
-                            <button onclick="deleteComment(${article.id}, ${comment.id})">Delete</button>
-                        </div>
-                    `).join('') : ''}
-                    <textarea id="commentInput-${article.id}" placeholder="Add a comment"></textarea>
-                    <button onclick="addComment(${article.id})">Add Comment</button>
-                </div>
-            `;
-            newsItems.appendChild(newsItem);
-        });
-    }
+                <textarea id="commentInput-${article.id}" placeholder="Add a comment"></textarea>
+                <button onclick="addComment(${article.id})">Add Comment</button>
+            </div>
+        `;
+        newsItems.appendChild(newsItem);
+    });
 }
 
-            
-        
+   
+
+
 
 function showNews(category) {
     const newsSection = document.getElementById('newsSection');
@@ -792,87 +809,89 @@ function showNews(category) {
 
     // Show the news section
     newsSection.style.display = 'block';
+} 
+ function likeArticle(articleId) {
+    const user = JSON.parse(localStorage.getItem('currentUser')); // Get the current user
+    if (!user) {
+        alert("Please log in to like articles.");
+        return;
+    }
+
+    const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+    const article = newsArticles.find(article => article.id == articleId);
+
+    if (article) {
+        // Ensure likedBy and dislikedBy arrays exist
+        if (!article.likedBy) article.likedBy = [];
+        if (!article.dislikedBy) article.dislikedBy = [];
+
+        // Check if the user has already liked
+        if (article.likedBy.includes(user.username)) {
+            alert("You have already liked this article.");
+            return;
+        }
+
+        // Check if the user previously disliked
+        if (article.dislikedBy.includes(user.username)) {
+            article.dislikes -= 1; // Remove dislike
+            article.dislikedBy = article.dislikedBy.filter(username => username !== user.username);
+        }
+
+        // Add like
+        article.likes += 1;
+        article.likedBy.push(user.username);
+
+        // Save changes
+        localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+        loadNews(); // Refresh the news display
+    }
 }
 
-        // Like Article
-        function likeArticle(articleId) {
-            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
-            const article = newsArticles.find(article => article.id == articleId);
 
-            if (article) {
-                const user = JSON.parse(localStorage.getItem('currentUser'));
-                if (!user) {
-                    alert("Please log in to like articles.");
-                    return;
-                }
 
-                // Check if the user has already liked or disliked
-                if (article.likedBy && article.likedBy.includes(user.username)) {
-                    alert("You have already liked this article.");
-                    return;
-                }
-                if (article.dislikedBy && article.dislikedBy.includes(user.username)) {
-                    // Remove dislike if the user previously disliked
-                    article.dislikes = (article.dislikes || 0) - 1;
-                    article.dislikedBy = article.dislikedBy.filter(username => username !== user.username);
-                }
 
-                // Add like
-                article.likes = (article.likes || 0) + 1;
-                article.likedBy = article.likedBy || [];
-                article.likedBy.push(user.username);
+  function dislikeArticle(articleId) {
+    const user = JSON.parse(localStorage.getItem('currentUser')); // Get the current user
+    if (!user) {
+        alert("Please log in to dislike articles.");
+        return;
+    }
 
-                // Update UI
-                document.getElementById(`likeCount-${articleId}`).textContent = article.likes;
-                document.getElementById(`likeButton-${articleId}`).disabled = true;
-                if (document.getElementById(`dislikeButton-${articleId}`).disabled) {
-                    document.getElementById(`dislikeButton-${articleId}`).disabled = false;
-                }
+    const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+    const article = newsArticles.find(article => article.id == articleId);
 
-                // Save changes
-                localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
-            }
+    if (article) {
+        // Ensure likedBy and dislikedBy arrays exist
+        if (!article.likedBy) article.likedBy = [];
+        if (!article.dislikedBy) article.dislikedBy = [];
+
+        // Check if the user has already disliked
+        if (article.dislikedBy.includes(user.username)) {
+            alert("You have already disliked this article.");
+            return;
         }
 
-        // Dislike Article
-        function dislikeArticle(articleId) {
-            const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
-            const article = newsArticles.find(article => article.id == articleId);
-
-            if (article) {
-                const user = JSON.parse(localStorage.getItem('currentUser'));
-                if (!user) {
-                    alert("Please log in to dislike articles.");
-                    return;
-                }
-
-                // Check if the user has already liked or disliked
-                if (article.dislikedBy && article.dislikedBy.includes(user.username)) {
-                    alert("You have already disliked this article.");
-                    return;
-                }
-                if (article.likedBy && article.likedBy.includes(user.username)) {
-                    // Remove like if the user previously liked
-                    article.likes = (article.likes || 0) - 1;
-                    article.likedBy = article.likedBy.filter(username => username !== user.username);
-                }
-
-                // Add dislike
-                article.dislikes = (article.dislikes || 0) + 1;
-                article.dislikedBy = article.dislikedBy || [];
-                article.dislikedBy.push(user.username);
-
-                // Update UI
-                document.getElementById(`dislikeCount-${articleId}`).textContent = article.dislikes;
-                document.getElementById(`dislikeButton-${articleId}`).disabled = true;
-                if (document.getElementById(`likeButton-${articleId}`).disabled) {
-                    document.getElementById(`likeButton-${articleId}`).disabled = false;
-                }
-
-                // Save changes
-                localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
-            }
+        // Check if the user previously liked
+        if (article.likedBy.includes(user.username)) {
+            article.likes -= 1; // Remove like
+            article.likedBy = article.likedBy.filter(username => username !== user.username);
         }
+
+        // Add dislike
+        article.dislikes += 1;
+        article.dislikedBy.push(user.username);
+
+        // Save changes
+        localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+        loadNews(); // Refresh the news display
+    }
+}  
+
+
+
+
+
+
 
         // Add Comment
         function addComment(articleId) {
@@ -907,6 +926,23 @@ function showNews(category) {
                 commentInput.value = "";
             }
         }
+function replyToComment(articleId, commentId) {
+    const replyText = prompt("Enter your reply:");
+    if (!replyText) return;
+
+    const newsArticles = JSON.parse(localStorage.getItem('newsArticles')) || [];
+    const article = newsArticles.find(article => article.id == articleId);
+
+    if (article && article.comments) {
+        const comment = article.comments.find(comment => comment.id == commentId);
+        if (comment) {
+            comment.reply = replyText;
+            localStorage.setItem('newsArticles', JSON.stringify(newsArticles));
+            loadNews(); // Refresh the news display
+        }
+    }
+}
+
 
         // Delete Comment
         function deleteComment(articleId, commentId) {
