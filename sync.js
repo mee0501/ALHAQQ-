@@ -1,38 +1,80 @@
-// sync.js - UPDATED WITH ERROR HANDLING
-const BIN_ID = https://api.jsonbin.io/v3/b/67ff87d08a456b79668a952c""; // 👈 Replace with your ID
-const API_KEY = "$2a$10$YOUR_API_KEY"; // Default free key (keep this)
+// JSONBin Configuration (replace these values)
+const BIN_ID = 'your-bin-id-here'; // The ID from your JSONBin URL
+const API_KEY = '$2b$10$your-api-key-here'; // From JSONBin.io settings
 
-async function syncNews() {
-  try {
-    // 1. Load latest news from cloud
-    const cloudResponse = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`);
-    const cloudData = await cloudResponse.json();
-    const cloudNews = cloudData.record?.news || [];
-    
-    // 2. Merge with local news
-    const localNews = JSON.parse(localStorage.getItem('newsArticles')) || [];
-    const mergedNews = [...cloudNews, ...localNews];
-    const uniqueNews = mergedNews.filter(
-      (v, i, a) => a.findIndex(t => t.id === v.id) === i
-    );
-
-    // 3. Save merged data everywhere
-    localStorage.setItem('newsArticles', JSON.stringify(uniqueNews));
-    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'X-Master-Key': API_KEY 
-      },
-      body: JSON.stringify({ news: uniqueNews })
-    });
-    
-    console.log("Sync successful!");
-  } catch (error) {
-    console.error("Sync failed:", error);
-  }
+// Function to load data from JSONBin
+async function loadData() {
+    try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            headers: {
+                'X-Master-Key': API_KEY,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) throw new Error('Failed to load data');
+        
+        const result = await response.json();
+        return result.record || [];
+    } catch (error) {
+        console.error('Error loading data:', error);
+        return [];
+    }
 }
 
-// Sync every 20 seconds and on page load
-setInterval(syncNews, 20000);
-window.addEventListener('load', syncNews);
+// Function to save data to JSONBin
+async function saveData(data) {
+    try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': API_KEY
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) throw new Error('Failed to save data');
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error saving data:', error);
+    }
+}
+
+// Usage in your application:
+
+// 1. Load existing data when page loads
+document.addEventListener('DOMContentLoaded', async () => {
+    const data = await loadData();
+    // Display your data here (modify based on your needs)
+    console.log('Loaded data:', data);
+    displayData(data);
+});
+
+// 2. When adding new data
+async function addNewItem(item) {
+    // First load existing data
+    const currentData = await loadData();
+    
+    // Add new item
+    currentData.push(item);
+    
+    // Save back to JSONBin
+    await saveData(currentData);
+    
+    // Update display
+    displayData(currentData);
+    
+    alert('Data saved successfully! It will appear on all devices.');
+}
+
+// Helper function to display data (modify for your needs)
+function displayData(data) {
+    const container = document.getElementById('data-container');
+    if (!container) return;
+    
+    container.innerHTML = data.map(item => 
+        `<div class="data-item">${JSON.stringify(item)}</div>`
+    ).join('');
+}
