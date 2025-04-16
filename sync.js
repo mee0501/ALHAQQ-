@@ -1,5 +1,5 @@
 // sync.js - UPDATED WITH ERROR HANDLING
-const BIN_ID = "https://api.jsonbin.io/v3/b/67ff16558960c979a5861098"; // 👈 Replace with your ID
+const BIN_ID = https://api.jsonbin.io/v3/b/67ff87d08a456b79668a952c""; // 👈 Replace with your ID
 const API_KEY = "$2a$10$YOUR_API_KEY"; // Default free key (keep this)
 
 async function syncNews() {
