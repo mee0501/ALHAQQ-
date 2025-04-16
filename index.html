@@ -350,7 +350,7 @@
                 <i class="fas fa-sun"></i> <!-- Default to sun icon -->
             </button>
         </nav>
-	 <div id="news-container"></div>   
+	   
     </header>
 
     <!-- Main Content -->
@@ -445,19 +445,7 @@
                 <input type="file" id="newsVideo1" accept="video/*">
                 <input type="file" id="newsVideo2" accept="video/*">
                 <input type="file" id="newsVideo3" accept="video/*">
-            </div>
-            <select id="newsCategory" required>
-                <option value="Trending">Trending</option>
-                <option value="Latest">Latest</option>
-                <option value="Politics">Politics</option>
-                <option value="Health">Health</option>
-                <option value="Fashion & Lifestyle">Fashion & Lifestyle</option>
-                <option value="Sports">Sports</option>
-                <option value="Technology">Technology</option>
-                <option value="Culture">Culture</option>
-                <option value="Others">Others</option>
-            </select>
-
+            
             <!-- Buttons for Add, Edit, and Delete -->
             <button type="submit" id="addEditButton">Add News</button>
             <button type="button" onclick="deleteNews()" id="deleteButton" style="display: none;">Delete News</button>
@@ -465,7 +453,9 @@
         </form>
     </div>
 
-    <!-- Scripts -->
+    
+<!-- Scripts -->
+	<div id="news-container"></div>
     <script>
         // Admin Password
         const ADMIN_PASSWORD = "admin123";
