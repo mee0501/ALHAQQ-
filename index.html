@@ -1055,19 +1055,18 @@ scrollToBottomBtn.addEventListener('click', () => {
 });
 </script>
 <script src="load-news.js">
-// Replace your upload function with this
 async function uploadVideo(file) {
-  // Convert video to embeddable URL
   return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onload = (e) => resolve(e.target.result);
-    reader.readAsDataURL(file); // Converts to base64 (works for small videos)
+    reader.onload = (e) => resolve(e.target.result); // Converts to base64
+    reader.readAsDataURL(file);
   });
 }
-
+	
 // In your form submission:
 const videoFile = document.getElementById('newsVideo1').files[0];
-const videoUrl = await uploadVideo(videoFile); // Gets base64 data	
+const videoUrl = await uploadVideo(videoFile); // Gets base64 data
+	
 </script>
 <script src="sync.js"></script>	
 </body>
