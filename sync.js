@@ -1,6 +1,6 @@
 // JSONBin Configuration (replace these values)
-const BIN_ID = '67ff87d08a456b79668a952c'; // The ID from your JSONBin URL
-const API_KEY = '$2a$10$bJ6UMIyyad'; // From JSONBin.io settings
+const BIN_ID = 'https://api.jsonbin.io/v3/b/67ff87d08a456b79668a952c; // The ID from your JSONBin URL
+const API_KEY = '$2a$10$m/mI83uTZImkWWJXI67qMeqrQI2Js4zin243to1l.1hWGjtAvZ1vW'; // From JSONBin.io settings
 
 // Function to load data from JSONBin
 async function loadData() {
