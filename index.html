@@ -1053,6 +1053,24 @@ scrollToBottomBtn.addEventListener('click', () => {
 });
 
 </script>
+<script>
+// 🔥 REPLACE THESE WITH YOUR VALUES!
+const BIN_ID = "https://api.jsonbin.io/v3/b/67ff87d08a456b79668a952c;"
+const API_KEY = "$2a$10$m/mI83uTZImkWWJXI67qMeqrQI2Js4zin243to1l.1hWGjtAvZ1vW";
 
+// 📡 SYNC FUNCTIONS (DON'T TOUCH)
+async function loadNews() {
+  const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+    headers: { 'X-Master-Key': API_KEY }
+  });
+  const data = await res.json();
+  return data.record || []; // Return news or empty array
+}
+
+// ... [REST OF THE CODE FROM PREVIOUS MESSAGE] ...
+
+// 🚀 INITIALIZE
+showNews(); // Load on startup
+</script>
 </body>
 </html>
