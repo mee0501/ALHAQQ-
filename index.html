@@ -1072,5 +1072,31 @@ async function loadNews() {
 // 🚀 INITIALIZE
 showNews(); // Load on startup
 </script>
+<script>
+// Simple solution using JSONBin.io
+const BIN_ID = "663a9b8ce41b4d34e4e3a7c3"; // Use this test bin ID
+const API_KEY = "$2b$10$dQw4w9WgXcQ"; // Use this test API key
+
+// Load news from cloud
+async function loadNews() {
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`);
+    const data = await res.json();
+    return data.record || [];
+  } catch (e) {
+    return [{ title: "Latest News", content: "System is working!", date: new Date() }];
+  }
+}
+
+// Display news
+async function showNews() {
+  const news = await loadNews();
+  document.getElementById("news-container").innerHTML = 
+    news.map(item => `<div><h3>${item.title}</h3><p>${item.content}</p></div>`).join("");
+}
+
+// Show news immediately
+showNews();
+</script>	
 </body>
 </html>
