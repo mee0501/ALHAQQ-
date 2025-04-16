@@ -1,5 +1,5 @@
 // sync.js - Cross-device syncing
-const BIN_ID = "PASTE_YOUR_BIN_ID_HERE"; // 👈 Use your Bin ID
+const BIN_ID = "67ff16558960c979a5861098"; // 👈 Use your Bin ID
 const API_KEY = "$2a$10$YOUR_API_KEY"; // Default key (free)
 
 async function syncNews() {
